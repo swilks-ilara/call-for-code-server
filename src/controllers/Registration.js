@@ -59,39 +59,36 @@ class Registration {
     return PatientModel.findById(patientId).then((patient) => {
       patient.organization = orgId;
       return patient.save()
-    }).then( (patient) => {
+    }).then( patient => {
         return patient;
-     }).catch ((error) => {
+     }).catch (error => {
         return error;
     });
   }
 
-  static deregisterPatientOrg(req, res, next) {
-    const patientId = req.body.patient;
-    const orgId = req.body.organization;
+  static deregisterPatientOrg(orgId, patientId) {
     let responsePatient;
-    res.set('Content-Type', 'application/json');
-    PatientModel.findById(patientId).then((patient) => {
+    return PatientModel.findById(patientId).then((patient) => {
       if (patient.organization != orgId) {
-        return Api.errorWithMessage(res, 400, `patient id ${patientId} was not registered with organization ${orgId}`);
+        return `patient id ${patientId} was not registered with organization ${orgId}`; //400
       }
-       return patient;
-    }).then((patient) => {
       patient.organization = null;
-      return patient.save();
-    }).then((patient) => {
-      responsePatient = patient;
-      return Registration.findActiveConsultation(patientId)
-    }).then((consultation) => {
-      if (consultation != null) {
-        consultation.active = false;
-        return consultation.save()
-      }
-      return Api.okWithContent(res,`{"patient": ${JSON.stringify(responsePatient)}`);
-    }).then((consultation) => {
-      return Api.okWithContent(res, `{"patient": ${JSON.stringify(responsePatient)}, "consultation": ${JSON.stringify(consultation)}}`);
+      return patient.save()
+          .then(patient => {
+            responsePatient = patient;
+            return Registration.findActiveConsultation(patientId);
+          }).then(consultation => {
+            if (!consultation) {
+              return [responsePatient]; //200
+            }
+            consultation.active = false;
+            return consultation.save()
+                .then(consultation => {
+                  return [responsePatient, consultation];//200
+                  });
+            });
     }).catch ((error) => {
-      return Api.errorWithMessage(res, 500, error.message + '\n' + error.stack)
+      return error; //500
     });
   }
 
