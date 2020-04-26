@@ -56,13 +56,13 @@ API:
 class Registration {
 
   static registerPatientOrg(orgId, patientId) {
-    PatientModel.findById(patientId).then((patient) => {
+    return PatientModel.findById(patientId).then((patient) => {
       patient.organization = orgId;
       return patient.save()
     }).then( (patient) => {
         return patient;
      }).catch ((error) => {
-        return null;
+        return error;
     });
   }
 

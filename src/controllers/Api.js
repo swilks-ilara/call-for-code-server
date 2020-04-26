@@ -13,6 +13,10 @@ class Api {
   static errorWithMessage(res, errorCode, errorMessage) {
     return res.status(errorCode).send(`{"error": ${errorMessage}}`);
   }
+
+  static isError(error) {
+    return error && error instanceof Error && error.stack && error.message
+  }
 }
 
 export default Api;

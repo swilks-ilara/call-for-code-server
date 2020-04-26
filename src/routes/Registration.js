@@ -7,12 +7,18 @@ const routes = express.Router();
 routes.post('/patient_org', (req, res, next) => {
     const orgId = req.body.organization;
     const patientId = req.body.patient;
-    const patient = Registration.registerPatientOrg(orgId, patientId);
-    if (patient) {
-        return Api.okWithContent(res,{ patient });
-    }
     res.set('Content-Type', 'application/json');
-    Api.errorWithMessage(res, 500, 'some error occurred.')
+    Registration.registerPatientOrg(orgId, patientId)
+        .then((patientOrError) => {
+            if (Api.isError(patientOrError)) {
+                return Api.errorWithMessage(res, 500, patientOrError.message + '\n' + patientOrError.stack)
+            } else if (patientOrError) {
+                return Api.okWithContent(res,{ patient: patientOrError });
+            }
+            return Api.errorWithMessage(res, 500, 'An error has occurred.')
+        }).catch((error) => {
+        return Api.errorWithMessage(res, 500, error.message + '\n' + error.stack)
+    });
 });
 routes.post('/patient_practitioner', Registration.registerPatientPractitioner);
 
