@@ -1,0 +1,27 @@
+erver   | BODY!!!! I have fever and cough
+server   | {
+server   |   name: { first_name: 'Sam', last_name: 'Aaron' },
+server   |   organization: ddddd3ddd618f5141202a191,
+server   |   _id: 5ea60415a839c5004bfab908,
+server   |   phone_number: 'whatsapp:+254727347491',
+server   |   registered_ts: 2020-04-26T21:58:45.427Z,
+server   |   __v: 0
+server   | }
+server   | undefined
+server   | In bot flow
+server   | Please share your concerns or symptoms with us. A practitioner will soon be reaching out.
+server   | in special, past switch
+server   | in end handle, responses? null
+server   | Created consulation here
+server   | chat ended? true
+server   | {
+server   |   practitioner: null,
+server   |   _id: 5ea604a1a839c5004bfab90a,
+server   |   organization: ddddd3ddd618f5141202a191,
+server   |   patient: 5ea60415a839c5004bfab908,
+server   |   active: true,
+server   |   accepted_timestamp: 2020-04-26T22:01:05.025Z,
+server   |   messages: [],
+server   |   __v: 0
+server   | }
+^[[1;2Dco

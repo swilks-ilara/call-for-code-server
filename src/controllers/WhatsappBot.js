@@ -31,9 +31,9 @@ class WhatsappBot {
         }
         return patient
     }).then(patient => {
-        // console.log(patient)
-        // patient_ = patient
-        return { _id: '5ea4cb0df8c3d30028614a74'}//Registration.findActiveConsultation(patient._id)
+        console.log(patient)
+        patient_ = patient
+        return Registration.findActiveConsultation(patient._id)
     }).then(consultation => {
         console.log(consultation)
         if (consultation) {
@@ -118,6 +118,7 @@ class WhatsappBot {
       console.log("Sending message " + message + " from " + from)
       ConsultationController.saveMessage({from, message, sent_ts}, consultation._id)
         .then(message => {
+          console.log("HALLLOOO!!")
           WebsocketController.sendMessageToRoom(consultation._id, 
             {consultation: consultation._id, 
               msg: message
@@ -234,7 +235,10 @@ class WhatsappBot {
               organization : patient.organization,
               patient : patient.id,
               active : true
-          }).save();
+          }).save()
+          .then(consultation => console.log(consultation))
+          .catch(error => console.log(error));
+          console.log("Created consulation here")
           return true;
       } else{
           return false;
