@@ -87,7 +87,9 @@ class WhatsappBot {
         const currentMessage = await BotMessageModel.findById(progress.current_message);
         console.log(currentMessage.text);
         let nextMessage = await WhatsappBot.getNextMessage(currentMessage, patientResponse, patient, progress);
-        if (nextMessage && nextMessage !== chatEndedFlag) {
+        if (nextMessage.message_type == BotMessageTypes.ResponseNotFound) {
+            return WhatsappBot.sendBotMessage(nextMessage.text);
+        } else if (nextMessage && nextMessage !== chatEndedFlag) {
             let nextMessageText;
             progress.current_message = nextMessage;
             if (nextMessage.message_type == BotMessageTypes.OrganizationChoice) {
@@ -168,8 +170,7 @@ class WhatsappBot {
             if (nextMessageId) {
                 return BotMessageModel.findById(nextMessageId);
             } else { // response invalid
-                WhatsappBot.respondWithNotFound();
-                return null;
+                return WhatsappBot.getNotFoundResponse();
             }
         }
     }
@@ -194,7 +195,7 @@ class WhatsappBot {
           if (orgNum in [...progress.organization_options.keys()]){
               Registration.registerPatientOrg(progress.organization_options[orgNum], patient.id);
           } else{
-              WhatsappBot.respondWithNotFound();
+              return WhatsappBot.getNotFoundResponse();
           }
           processed = true;
           break;
@@ -244,11 +245,9 @@ class WhatsappBot {
       return OrganizationModel.find().where('_id').in(orgIds).limit(10);
   }
 
-  static respondWithNotFound() {
+  static getNotFoundResponse() {
     return BotMessageModel.findOne({
         message_type: BotMessageTypes.ResponseNotFound
-    }).then(message => {
-        return WhatsappBot.sendBotMessage(message.text)
     });
   }
 
