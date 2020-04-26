@@ -22,7 +22,7 @@ class BotDataCreator {
     const rLNameId = mongoose.Types.ObjectId('ea2aa3efb618f5141202a191');
     const rLocationId = mongoose.Types.ObjectId('ebbbb3efb618f5141202a191');
     const rOrgId = mongoose.Types.ObjectId('edddd3efb618f5141202a191');
-    const rProblemId = mongoose.Types.ObjectId('effff3efb618f5141202a191');
+    const rRefusedId = mongoose.Types.ObjectId('eacacaefb618f5141202a191');
 
     const orgIds = this.getHardCodedOrgIds();
     const org1Id = mongoose.Types.ObjectId(orgIds[0]);
@@ -41,8 +41,10 @@ class BotDataCreator {
         `    - ${BotDataCreator.getChoicesStr(rConsentYesChoices)} if you would like to continue \n` +
         `    - ${BotDataCreator.getChoicesStr(rConsentNoChoices)} if you do not`,
     [rConsentYes, rConsentNo], BotMessageTypes.Start);
-    //todo null response = end of bot flow;
-    this.createBotMessage(botRefusedId,'Boo, so sad to see you go :(.', null);
+    //null response = end of bot flow;
+    const rRefused = this.createPatientResponse(rRefusedId, [], botConsentId);
+    this.createBotMessage(botRefusedId,'Okay, if you change your mind, you can text us again!',
+        [rRefused]);
 
     // name
     const rFName = this.createPatientResponse(rFNameId, [], botLNameId); //[]  = free form
@@ -65,13 +67,13 @@ class BotDataCreator {
         [rOrg], BotMessageTypes.OrganizationChoice);
 
     // problem
-    // const rProblem = this.createPatientResponse(rProblemId, [], null); // not really free form, need to later implement validation
     //todo include instructions
     this.createBotMessage(botProblemId,'Please share your concerns or symptoms with us. A practitioner will soon be reaching out.',
         null);
 
     // response not in choices => respond with this but don't update patient "bookmark"
-    this.createBotMessage(botNotFoundId,'Sorry, please try again.',[], BotDataCreator.ResponseNotFound); // [] responses = special for invalid response message
+    this.createBotMessage(botNotFoundId,'Sorry, please try again.',[],
+        BotMessageTypes.ResponseNotFound); // [] responses = special for invalid response message
   }
 
   static getHardCodedOrgIds() {
