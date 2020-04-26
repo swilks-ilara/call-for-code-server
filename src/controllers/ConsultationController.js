@@ -39,7 +39,6 @@ class ConsultationController {
     static saveMessage(data, consultationId) {
         return new Promise((resolve, reject) => {
         const { from, message, sent_ts} = data;
-        console.log(data)
         const messageDoc = MessageModel({
             sent_ts,
             from,
@@ -51,7 +50,8 @@ class ConsultationController {
             {_id: consultationId}, 
             {$push: { messages: messageDoc }},
             {upsert: true})
-        resolve(messageDoc.toObject())
+        .then(() => resolve(messageDoc.toObject()))
+        
         })
     }
 }

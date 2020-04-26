@@ -25,13 +25,14 @@ class WebsocketController {
 
   static handleMessageReceived(client, data) {
     const { room, content, from, sent_ts } = data;
-    console.log('content', content)
     const { message } = content
     console.log(`${from} sent "${message}" to ${room} from client ${client.id}`);
     
     consultationContoller.saveMessage({from, message, sent_ts}, room)
-    this.sendMessageToRoom(room, {consultation: room, msg: {from, sent_ts, content: {message}}});
-    WhatsappBot.sendOutgoingMessage("whatsapp:+16479187445", message)
+    .then(message => {
+      this.sendMessageToRoom(room, {consultation: room, msg: message});
+      // WhatsappBot.sendOutgoingMessage("whatsapp:+16479187445", message)
+    })
   }
 
   static sendMessageToRoom(room, data) {
