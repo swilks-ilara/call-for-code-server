@@ -50,7 +50,7 @@ const ResponseSchema = mongoose.Schema({
     points_to: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'bot_message'
-    } // null = end of chat
+    }
 });
 
 export const ResponseModel = mongoose.model('response', ResponseSchema);

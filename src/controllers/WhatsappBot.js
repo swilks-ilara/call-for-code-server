@@ -6,7 +6,6 @@ import PatientsController from './PatientsController'
 import {OrganizationModel, PatientModel, ConsultationModel} from '../models/index';
 import {BotFlowProgressModel, BotMessageModel, BotMessageTypes} from "../models/bot";
 import BotDataCreator from "./BotDataCreator";
-import mongoose from "mongoose";
 
 dotenv.config();
 
