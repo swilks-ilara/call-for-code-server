@@ -195,12 +195,12 @@ class WhatsappBot {
     let processed = false;
     switch (botMessage.message_type) {
         case BotMessageTypes.FirstName:
-          patient.first_name = patientResponse;
+          patient.name.first_name = patientResponse;
           patient.save();//todo: await?
           processed = true;
           break;
       case BotMessageTypes.LastName:
-          patient.last_name = patientResponse;
+          patient.name.last_name = patientResponse;
           patient.save();
           processed = true;
           break;
