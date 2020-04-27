@@ -116,23 +116,18 @@ class Registration {
     });
   }
 
-//todo still a bit iffy about the difference between requests coming from the 2 sides.
-// verify that patient side does not have/need practitioner id
-  static deregisterPatientPractitioner(req, res, next) {
-    const patientId = req.body.patient;
-    const practitionerId = req.body.practitioner; // optional, only set if coming from practitioner/socket side
-    res.set('Content-Type', 'application/json');
-    Registration.findActiveConsultation(patientId, practitionerId).then((consultation) => {
-      if (consultation != null && consultation.practitioner != null) {
-        consultation.active = false;
-        return consultation.save();
-      } else {
-        return Api.okWithMessage(res,'patient was not registered to practitioner. No updates performed.');
+  static deregisterPatientPractitioner(practitionerId, patientId) {
+    return Registration.findActiveConsultation(patientId, practitionerId).then(consultation => {
+      if (!consultation || !consultation.practitioner) {
+        return null; //200
       }
-    }).then((consultation) => {
-      return Api.okWithContent(res, { consultation });
+      consultation.active = false;
+      return consultation.save()
+          .then((consultation) => {
+            return consultation; //200
+          });
     }).catch ((error) => {
-      return Api.errorWithMessage(res, 500, error.message + '\n' + error.stack)
+      return error //500
     });
   }
 
