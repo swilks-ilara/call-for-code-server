@@ -20,7 +20,6 @@ class WhatsappBot {
   static incomingMessage(req, res, next) {
     const content = req.body.Body;
     const fromPhoneNumber = req.body.From
-    console.log(`BODY!!!! ${req.body.Body}`)
     let patient_;
     PatientModel.findOne({
       phone_number: fromPhoneNumber
@@ -31,7 +30,6 @@ class WhatsappBot {
         }
         return patient
     }).then(patient => {
-        console.log(patient)
         patient_ = patient
         return Registration.findActiveConsultation(patient._id)
     }).then(consultation => {
@@ -115,10 +113,9 @@ class WhatsappBot {
       var message = whatsappMessage.Body
       var from = whatsappMessage.From
       var sent_ts = new Date() //TODO - replace this with whatsapp ts
-      console.log("Sending message " + message + " from " + from)
+      console.log("Sending message " + message + " from " + from + " to " + consultation._id)
       ConsultationController.saveMessage({from, message, sent_ts}, consultation._id)
         .then(message => {
-          console.log("HALLLOOO!!")
           WebsocketController.sendMessageToRoom(consultation._id, 
             {consultation: consultation._id, 
               msg: message
@@ -147,7 +144,7 @@ class WhatsappBot {
   }
 
   static sendOutgoingMessage(to, body) {
-    console.log(body);
+    console.log('b',body, to);
     return twilioClient.messages.create({
         from: 'whatsapp:+254203893148',
         body: body,
@@ -208,7 +205,8 @@ class WhatsappBot {
       case BotMessageTypes.OrganizationChoice:
           let orgNum = +patientResponse;
           if (orgNum in [...progress.organization_options.keys()]){
-              Registration.registerPatientOrg(progress.organization_options[orgNum], patient.id);
+              // Hardcode id for demo
+              Registration.registerPatientOrg(/* progress.organization_options[orgNum] */ '678df3efb618f5141202a191', patient.id);
           } else{
               return WhatsappBot.getNotFoundResponse();
           }

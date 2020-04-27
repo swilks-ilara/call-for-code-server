@@ -1,5 +1,6 @@
 import consultationContoller from './ConsultationController.js'
 import WhatsappBot from './WhatsappBot.js'
+import { ConsultationModel, PatientModel } from '../models/index.js'
 var rooms = {} // consultation id -> [client]
 class WebsocketController {
   static handleJoin(client, data){
@@ -31,7 +32,10 @@ class WebsocketController {
     consultationContoller.saveMessage({from, message, sent_ts}, room)
     .then(message => {
       this.sendMessageToRoom(room, {consultation: room, msg: message});
-      // WhatsappBot.sendOutgoingMessage("whatsapp:+16479187445", message)
+      // WhatsappBot.sendOutgoingMessage('whatsapp:+16479187445', message.content.message)
+      ConsultationModel.findById(room)
+      .then(c => PatientModel.findById(c.patient))
+      .then(p => WhatsappBot.sendOutgoingMessage(p.phone_number, message.content.message))
     })
   }
 
