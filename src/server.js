@@ -42,8 +42,8 @@ app.use(express.json());
 
 // Routes
 //todo test only and run once
-// TestDataCreator.createTestData()
-// BotDataCreator.createBotData();
+TestDataCreator.createTestData()
+BotDataCreator.createBotData();
 app.use('/register',registration);
 app.use('/deregister',deregistration);
 app.use('/consultation', messages);
