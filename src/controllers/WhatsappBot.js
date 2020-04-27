@@ -37,7 +37,7 @@ class WhatsappBot {
     }).then(consultation => {
         console.log(consultation)
         if (consultation) {
-          WhatsappBot.sendToConsultation(consultation, req.body)   
+          WhatsappBot.sendToConsultation(consultation, req.body)
         } else {
           return WhatsappBot.sendToBot(patient_, content) //WhatsappBot.test(res);//
         }
@@ -216,7 +216,7 @@ class WhatsappBot {
           break;
     }
     console.log('in special, past switch');
-    const chatEnded = await WhatsappBot.handleEndOfChat(botMessage.responses, patient);
+    const chatEnded = await WhatsappBot.handleEndOfChat(botMessage.responses, patientResponse, patient);
     console.log(`chat ended? ${chatEnded}`);
     if (processed && !chatEnded) {
         const pointsTo = await BotMessageModel.findById(botMessage.responses[0].points_to);
@@ -228,15 +228,20 @@ class WhatsappBot {
     return null;
   }
 
-  static async handleEndOfChat(responses, patient) {
+  static async handleEndOfChat(responses, patientResponse, patient) {
       console.log(`in end handle, responses? ${responses}`);
       if (!responses) { // chatbot flow is over
           ConsultationModel({
               organization : patient.organization,
               patient : patient.id,
-              active : true
+              active : true,
+              messages: []
           }).save()
-          .then(consultation => console.log(consultation))
+          .then(consultation => {
+              console.log(consultation);
+              const data = {from: patient.id, message: patientResponse, ts_sent: Date.now()};
+              return ConsultationController.saveMessage(data, consultation.id);
+          })
           .catch(error => console.log(error));
           console.log("Created consulation here")
           return true;
