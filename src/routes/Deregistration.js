@@ -9,19 +9,22 @@ routes.post('/patient_org', (req, res, next) => {
     res.set('Content-Type', 'application/json');
     Registration.deregisterPatientOrg(orgId, patientId)
         .then(docsOrError => {
-            if (docsOrError instanceof String) {
+            if (typeof docsOrError == 'string') {
                 return Api.errorWithMessage(res, 400, docsOrError);
             } else if (Api.isError(docsOrError)) {
                 return Api.errorWithMessage(res, 500, docsOrError.message + '\n' + docsOrError.stack);
             } else if (docsOrError instanceof Array && docsOrError.length === 1) {
                 const patient = docsOrError[0];
-                Api.okWithContent(res,{ patient });
+                return Api.okWithContent(res,{ patient });
             } else if (docsOrError instanceof Array && docsOrError.length === 2) {
                 const patient = docsOrError[0];
                 const consultation = docsOrError[1];
-                Api.okWithContent(res, `{"patient": ${JSON.stringify(patient)}, "consultation": ${JSON.stringify(consultation)}}`);
+                return Api.okWithContent(res, `{"patient": ${JSON.stringify(patient)}, "consultation": ${JSON.stringify(consultation)}}`);
             }
-        })
+            return Api.errorWithMessage(res, 500, 'An error has occurred.')
+        }).catch((error) => {
+        return Api.errorWithMessage(res, 500, error.message + '\n' + error.stack)
+    });
 });
 routes.post('/patient_practitioner', Registration.deregisterPatientPractitioner);
 

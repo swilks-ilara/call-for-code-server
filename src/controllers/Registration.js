@@ -85,36 +85,34 @@ class Registration {
             return consultation.save()
                 .then(consultation => {
                   return [responsePatient, consultation];//200
-                  });
+                });
             });
     }).catch ((error) => {
       return error; //500
     });
   }
 
-  static registerPatientPractitioner(req, res, next) {
-    const patientId = req.body.patient;
-    const practitionerId = req.body.practitioner;
-    res.set('Content-Type', 'application/json');
-    Promise.all([Registration.findOrgIdFromPractitionerId(practitionerId),
-                        PatientModel.findById(patientId)]).then(([practitioner, patient]) => {
+  static registerPatientPractitioner(practitionerId, patientId) {
+    return Promise.all([Registration.findOrgIdFromPractitionerId(practitionerId),
+      PatientModel.findById(patientId)]).then(([practitioner, patient]) => {
       if (practitioner.organization.toString() != patient.organization) {
-        return Api.errorWithMessage(res, 400, `patient org id ${patient.organization} does not match practitioner org id ${practitioner.organization}`)
+        return `patient org id ${patient.organization} does not match practitioner org id ${practitioner.organization}` //400
       }
       return Registration.findActiveConsultation(patientId)
-    }).then((consultation) => {
-      if (consultation == null) {
-        return Api.errorWithMessage(res, 400, 'patient had no waiting room consultation.')
-      } else if (consultation.practitioner == null) {
-        consultation.practitioner = practitionerId;
-        return consultation.save()
-      }
-      // an active consultation exists, practitioner not null => patient already has practitioner
-      return Api.errorWithMessage(res, 400, `patient with id ${patientId} is already registered with practitioner id ${consultation.practitioner} on active consultation id ${consultation.id}.`)
-    }).then((consultation) => {
-      return Api.okWithContent(res, { consultation });
-    }).catch ((error) => {
-      return Api.errorWithMessage(res, 500, error.message + '\n' + error.stack)
+          .then(consultation => {
+            if (consultation == null) {
+              return 'patient had no waiting room consultation.'; //400
+            } else if (consultation.practitioner) {
+              return `patient with id ${patientId} is already registered with practitioner id ${consultation.practitioner} on active consultation id ${consultation.id}.`; //400
+            }
+            consultation.practitioner = practitionerId;
+            return consultation.save()
+                .then(consultation => {
+                  return consultation; //200
+                });
+          });
+    }).catch (error => {
+      return error; // 500
     });
   }
 
