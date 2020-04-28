@@ -8,7 +8,8 @@ class WebsocketController {
 
     consultationContoller.getAllConsultations(uid)
     .then(consultations => {
-      consultations.forEach(consultation => {
+      consultations.forEach(consultationWrapper => {
+        const { consultation } = consultationWrapper;
         const roomId = consultation._id;
         if (roomId in rooms) {
           const currentRoom = rooms[roomId]
