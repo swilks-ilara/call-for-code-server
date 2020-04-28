@@ -1,8 +1,9 @@
-import { MessageModel, ConsultationModel, PractitionerModel } from "../models";
+import { MessageModel, ConsultationModel, PractitionerModel, PatientModel} from "../models";
 
 class ConsultationController {
 
     static getAllConsultations(practitionerId) {
+        let cons_ = null
         return new Promise((resolve, reject ) => {
             PractitionerModel.findById(practitionerId)
             .then(practitioner => {
@@ -13,8 +14,13 @@ class ConsultationController {
                     messages: { $gt: [] }
                 })},
                 err => reject(err))
+            .then(consultations => {
+                cons_ = consultations;
+                return Promise.all(consultations.map(c => PatientModel.findById(c.patient)))
+            },
+            err => reject(err))
             .then(
-                consultations => resolve(consultations),
+                patients => resolve(patients.map((p, i) => ({patient: p, consultation: cons_[i]}))),
                 err => reject(err))
         })
     }
